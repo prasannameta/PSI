@@ -24,7 +24,7 @@ public class Tokenizer {
          char ch = mText[mN];
          if (char.IsWhiteSpace (ch)) {
             if (ch == '\n') { mLineStart = mN; mLine++; }
-            mN++; continue; 
+            mN++; continue;
          }
          if (char.IsLetter (ch)) return IdentifierOrKeyword ();
          if (char.IsDigit (ch)) return Number ();
@@ -44,8 +44,7 @@ public class Tokenizer {
          mN += m.Length;
          if (text.Contains ('.') || text.Contains ('e') || text.Contains ('E'))
             return Make (L_REAL, text, start);
-         else
-            return Make (L_INTEGER, text, start);
+         return Make (L_INTEGER, text, start);
       }
       return Make (ERROR, "Invalid number", mN);
    }
@@ -54,7 +53,7 @@ public class Tokenizer {
    // If we see an open " then we construct a string token
    Token String () {
       int start = mN++;
-      while (mN < mText.Length && mText[mN++] != '"') { }
+      while (mN < mText.Length && mText[mN++] != '"') ;
       return Make (L_STRING, mText[(start + 1)..(mN - 1)], start);
    }
 

@@ -25,9 +25,7 @@ public class Context {
                c.Vars.Add (new (name, mTypeMap[pi.PropertyType]));
             }
             foreach (var m in type.GetMethods ()) {
-               if (!m.IsStatic) continue;
-               if (m.Name.StartsWith ("get_")) continue;
-               if (m.Name.StartsWith ("set_")) continue; 
+               if (!m.IsStatic || m.Name.StartsWith ("get_") || m.Name.StartsWith ("set_")) continue;
                Console.WriteLine (m);
                List<Var> pars = new ();
                var retType = mTypeMap[m.ReturnType];

@@ -80,4 +80,13 @@ public record NBinary (NExpr Left, Token Op, NExpr Right) : NExpr {
 public record NFnCall (Token Name, NExpr[] Params) : NExpr {
    public override T Accept<T> (Visitor<T> visitor) => visitor.Visit (this);
 }
+public record NIfStmt (Token Name, NExpr Condition, NStmt[] stmts) : NExpr {
+   public override T Accept<T> (Visitor<T> visitor) => visitor.Visit (this);
+}
+public record NElseStmt (Token Name, NStmt[] stmts) : NExpr {
+   public override T Accept<T> (Visitor<T> visitor) => visitor.Visit (this);
+}
+public record NFnDecl (Token Name, NExpr[] Params) : NExpr {
+   public override T Accept<T> (Visitor<T> visitor) => visitor.Visit (this);
+}
 #endregion

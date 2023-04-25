@@ -80,6 +80,14 @@ public class Parser {
       return new (stmts.ToArray ());
    }
 
+   NCompoundStmt IfStmt () {
+      Expect (IF);
+      List<NStmt> stmts = new ();
+      while (!Match (THEN)) { Expression (); }
+      while (!Match (ELSE)) { stmts.Add (Stmt ()); Match (SEMI); }
+      return new (stmts.ToArray ());
+   }
+
    // write-stmt =  ( "writeln" | "write" ) arglist .
    NWriteStmt WriteStmt () 
       => new (Prev.Kind == WRITELN, ArgList ());
@@ -139,6 +147,9 @@ public class Parser {
          if (Peek (OPEN)) return new NFnCall (Prev, ArgList ());
          return new NIdentifier (Prev);
       }
+      //if (Match (IF)) return new NIfStmt (Prev, Expression ());
+      //if (Match (ELSE)) return new NElseStmt (Prev);
+
       if (Match (L_INTEGER, L_REAL, L_BOOLEAN, L_CHAR, L_STRING)) return new NLiteral (Prev);
       if (Match (NOT)) return new NUnary (Prev, Primary ());
       Expect (OPEN, "Expecting identifier or literal");

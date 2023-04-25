@@ -30,6 +30,14 @@ public class PSIPrint : Visitor<StringBuilder> {
       NWrite ("begin"); N++;  Visit (b.Stmts); N--; return NWrite ("end"); 
    }
 
+   public override StringBuilder Visit (NIfStmt b) {
+      NWrite ("if"); N++; Visit (b.Stmts); N--; return NWrite ("");
+   }
+
+   public override StringBuilder Visit (NElseStmt b) {
+      NWrite ("else"); N++; Visit (b.Stmts); N--; return NWrite ("");
+   }
+
    public override StringBuilder Visit (NAssignStmt a) {
       NWrite ($"{a.Name} := "); a.Expr.Accept (this); return Write (";");
    }
@@ -64,6 +72,22 @@ public class PSIPrint : Visitor<StringBuilder> {
          if (i > 0) Write (", "); f.Params[i].Accept (this);
       }
       return Write (")");
+   }
+
+   public override StringBuilder Visit (NIfStmt ifStmt) {
+      Write ($"{ifStmt.Name} (");
+      for (int i = 0; i < ifStmt.Params.Length; i++) {
+         if (i > 0) Write (", "); ifStmt.Params[i].Accept (this);
+      }
+      return Write (")");
+   }
+
+   public override StringBuilder Visit (NElseStmt elseStmt) {
+      throw new NotImplementedException ();
+   }
+
+   public override StringBuilder Visit (NFnDecl fnDecl) {
+      throw new NotImplementedException ();
    }
 
    StringBuilder Visit (params Node[] nodes) {
