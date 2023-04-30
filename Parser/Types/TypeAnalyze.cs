@@ -88,7 +88,7 @@ public class TypeAnalyze : Visitor<NType> {
    }
 
    public override NType Visit (NCallStmt c) {
-      throw new NotImplementedException ();
+      return Void;
    }
    #endregion
 
@@ -140,7 +140,15 @@ public class TypeAnalyze : Visitor<NType> {
    }
 
    public override NType Visit (NFnCall f) {
-      throw new NotImplementedException ();
+      if (mSymbols.Find (f.Name.Text) is not NFnDecl fnDecl) throw new ParseException (f.Name, "Function not found");
+      if (f.Params.Length != fnDecl.Params.Length) throw new ParseException (f.Name, "Function parameters do not match equal");
+      for (int i = 0; i < f.Params.Length; i++) {
+         NType type = fnDecl.Params[i].Accept (this);
+         if (f.Params[i].Accept (this) != type) f.Params[i] = AddTypeCast (f.Name, f.Params[i], type);
+      }
+      fnDecl.Body?.Accept (this);
+      f.Type = fnDecl.Return;
+      return f.Type;
    }
 
    public override NType Visit (NTypeCast c) {

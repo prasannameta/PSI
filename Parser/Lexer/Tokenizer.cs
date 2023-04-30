@@ -42,10 +42,8 @@ public class Tokenizer {
          int start = mN;
          string text = mText[mN..(mN + m.Length)];
          mN += m.Length;
-         if (text.Contains ('.') || text.Contains ('e') || text.Contains ('E'))
-            return Make (L_REAL, text, start);
-         else
-            return Make (L_INTEGER, text, start);
+         return (new[] { '.', 'e', 'E' }.Any (text.Contains)) ?
+            Make (L_REAL, text, start) : Make (L_INTEGER, text, start);
       }
       return Make (ERROR, "Invalid number", mN);
    }
@@ -54,14 +52,14 @@ public class Tokenizer {
    // If we see an open " then we construct a string token
    Token String () {
       int start = mN++;
-      while (mN < mText.Length && mText[mN++] != '"') { }
+      while (mN < mText.Length && mText[mN++] != '"') ;
       return Make (L_STRING, mText[(start + 1)..(mN - 1)], start);
    }
 
    // If we see an open ' then we construct a char token
    Token Char () {
       int start = mN++;
-      while (mN < mText.Length && mText[mN++] != '\'') { }
+      while (mN < mText.Length && mText[mN++] != '\'') ;
       string text = mText[(start + 1)..(mN - 1)];
       if (text.Length != 1) return Make (ERROR, "Invalid character", start);
       return Make (L_CHAR, text, start);
@@ -70,7 +68,7 @@ public class Tokenizer {
    // If we see an alpha character, construct an identifier or keyword
    Token IdentifierOrKeyword () {
       int start = mN;
-      while (char.IsLetterOrDigit (mText[++mN])) { }
+      while (char.IsLetterOrDigit (mText[++mN])) ;
       string s = mText[start..mN];
       if (Enum.TryParse (s, true, out Token.E kind) && kind < _ENDKEYWORDS)
          return Make (kind, s, start);
