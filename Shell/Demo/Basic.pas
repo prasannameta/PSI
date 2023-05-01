@@ -1,4 +1,6 @@
 program Basic;
+const 
+   PI = 3.14;
 var
    i, j, k: integer;
    pi, f: real;

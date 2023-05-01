@@ -1,10 +1,11 @@
 program           =  program IDENT ; block "." .
 block             =  declarations compound-stmt .
 
-declarations      =  [var-decls] [procfn-decls]
+declarations      =  [var-decls] [procfn-decls] [const-decls]
 ident-list        =  IDENT { "," IDENT } 
 var-decls         =  "var" var-decl ";" { var-decl ";" } .
 procfn-decls      =  { proc-decl | func-decl }
+const-decls       =  "const" { IDENT "=" expression } .
 var-decl          =  ident-list ":" type .
 proc-decl         =  "procedure" IDENT paramlist; block ";" .
 func-decl         =  "function" IDENT paramlist ":" type; block ";" .

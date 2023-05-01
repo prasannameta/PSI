@@ -158,6 +158,11 @@ public class TypeAnalyze : Visitor<NType> {
 
    NType Visit (IEnumerable<Node> nodes) {
       foreach (var node in nodes) node.Accept (this);
-      return NType.Void;
+      return Void;
+   }
+
+   public override NType Visit (NConstDecl c) {
+      mSymbols.NConsts.Add (c);
+      return c.Type;
    }
 }
