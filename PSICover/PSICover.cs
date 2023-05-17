@@ -150,6 +150,7 @@ class Analyzer {
    void GenerateOutputs () {
       ulong[] hits = File.ReadAllLines ($"{Dir}/hits.txt").Select (ulong.Parse).ToArray ();
       var files = mBlocks.Select (a => a.File).Distinct ().ToArray ();
+      Dictionary<string, (int blocks, int hits, double hitpercent)> summary = new ();
       foreach (var file in files) {
          var blocks = mBlocks.Where (a => a.File == file)
                              .OrderBy (a => a.SPosition)
@@ -163,18 +164,21 @@ class Analyzer {
          var code = File.ReadAllLines (file);
          for (int i = 0; i < code.Length; i++)
             code[i] = code[i].Replace ('<', '\u00ab').Replace ('>', '\u00bb');
+         int blks = blocks.Count;
+         int hitsCount = 0;
          foreach (var block in blocks) {
             bool hit = hits[block.Id] > 0;
-            string tag = $"<span class=\"{(hit ? "hit" : "unhit")}\">";
+            string tag = $"<span class=\"{(hit ? "hit" : "unhit")}\" title=\"{(hit ? hits[block.Id] + " hits" : "")}\">";
             code[block.ELine] = code[block.ELine].Insert (block.ECol, "</span>");
             code[block.SLine] = code[block.SLine].Insert (block.SCol, tag);
+            hitsCount += hit ? 1 : 0;
          }
          string htmlfile = $"{Dir}/HTML/{Path.GetFileNameWithoutExtension (file)}.html";
 
          string html = $$"""
             <html><head><style>
-            .hit { background-color:aqua; }
-            .unhit { background-color:orange; }
+            .hit { background-color:aqua; white-space:normal;}
+            .unhit { background-color:orange; white-space:normal; }
             </style></head>
             <body><pre>
             {{string.Join ("\r\n", code)}}
@@ -182,7 +186,31 @@ class Analyzer {
             """;
          html = html.Replace ("\u00ab", "&lt;").Replace ("\u00bb", "&gt;");
          File.WriteAllText (htmlfile, html);
+         var hitPercent = Math.Round (100.0 * hitsCount / blks, 1);
+         summary.Add (htmlfile, (blks, hitsCount, hitPercent));
       }
+
+      string coverageSummary = "";
+      foreach (var (htmlfile, (blocks, hitscount, hitpercent)) in summary.OrderBy (x => x.Value.hitpercent))
+         coverageSummary += $"<tr><th><a href=file:///{htmlfile} target=\"_blank\" title={htmlfile}>{Path.GetFileName (htmlfile)}</a></th><th>{blocks}</th><th>{hitscount}</th><th style=\"font-weight:bold;\">{hitpercent}%</th> </tr>\r\n";
+      
+      string summaryfile = $"{Dir}/HTML/PSI-Summary.html";
+      string summaryhtml = $$"""
+         <html><head><style>
+         table, th, td { border: 1px solid black; font-weight:normal; }
+         th, td { padding:7px; }
+         #fw { font-weight:bold; background:royalblue; color:white; }
+         </style><title>PSI Coverage Summary </title><head>
+         <body><pre>
+         <h1> Summary of PSI Coverage analyzer </h1>
+         <table>
+          <tr> <th id="fw"> Filename </th><th id="fw">No. of blocks</th> <th id="fw">Hits count</th> <th id="fw">Coverage</th></tr>
+          {{ coverageSummary }}
+         </table>
+         </pre></body></html>
+         """;
+      File.WriteAllText (summaryfile, summaryhtml);
+
       int cBlocks = mBlocks.Count, cHit = hits.Count (a => a > 0);
       double percent = Math.Round (100.0 * cHit / cBlocks, 1);
       Console.WriteLine ($"Coverage: {cHit}/{cBlocks}, {percent}%");
@@ -235,7 +263,7 @@ class Block {
 
 static class Program {
    public static void Main () {
-      var analyzer = new Analyzer ("P:/Bin", "PSITest.exe", "parser.dll");
+      var analyzer = new Analyzer ("D:/VSProjects/AcademyGitProjects/PSI/Bin", "PSITest.exe", "parser.dll");
       analyzer.Run ();
    }
 }
