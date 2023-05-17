@@ -263,7 +263,7 @@ class Block {
 
 static class Program {
    public static void Main () {
-      var analyzer = new Analyzer ("D:/VSProjects/AcademyGitProjects/PSI/Bin", "PSITest.exe", "parser.dll");
+      var analyzer = new Analyzer ("P:/Bin", "PSITest.exe", "parser.dll");
       analyzer.Run ();
    }
 }
